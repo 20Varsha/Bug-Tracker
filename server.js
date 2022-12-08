@@ -1,5 +1,6 @@
 const express = require('express');
 
+
 const Joi = require('joi');
 
 const app = express();
@@ -20,7 +21,7 @@ app.get("/", (req, res) => {
 });
 
 
-app.get("/api/bugs/", (req,res) => {
+app.get("/api/bugs/", (req, res) => {
 
     res.send(bugs);
 });
@@ -37,10 +38,10 @@ app.get("/api/bugs/:id", (req, res) => {
 
 app.post("/api/bugs", (req, res) => {
 
-    const { error } = validateBugs(req.body) 
+    const { error } = validateBugs(req.body)
 
-    if (error) 
-    return res.status(400).send(error.bugs[0].message)
+    if (error)
+        return res.status(400).send(error.details[0].message)
 
 
     const bug = {
@@ -56,27 +57,19 @@ app.put("/api/bugs/:id", (req, res) => {
 
     const bug = bugs.find(c => c.id === parseInt(req.params.id))
 
-    if (!bug) res.status(404).json("Not Found");
+    if (!bug) res.status(404).json("Bugs with this id is not found");
 
 
     const { error } = validateBugs(req.body)
 
-    if (error) 
-    return res.status(400).send(error.details[0].message)
+    if (error)
+        return res.status(400).send(error.details[0].message)
 
     bug.name = req.body.name;
     res.send(bug);
 
-    function validateBugs(bug) {
-
-        const bug_schema = {
-            name: Joi.string().min(3).required()
-        };
-
-        return Joi.validate(bug, bug_schema);
-    }
-
 });
+
 
 app.delete("/api/bugs/:id", (req, res) => {
 
@@ -92,6 +85,15 @@ app.delete("/api/bugs/:id", (req, res) => {
 
 });
 
-const port = process.env.port || 3000;
+function validateBugs(bug) {
+
+    const bug_schema = {
+        name: Joi.string().min(3).required()
+    };
+
+    return Joi.validate(bug, bug_schema);
+}
+
+const port = process.env.PORT || 3000;
 
 app.listen(port, () => console.log(`server is running on  port ${port}`));
